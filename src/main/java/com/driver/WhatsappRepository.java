@@ -52,13 +52,15 @@ public class WhatsappRepository {
             adminMap.put(group,users.get(0));
             return group;
         }
+        else {
 
-        String s = "Group" + customGroupCount;
-        Group group = new Group(s,users.size());
-        groupUserMap.put(group,users);
-        adminMap.put(group,users.get(0));
-        customGroupCount++;
-        return group;
+            String s = "Group" + customGroupCount;
+            Group group = new Group(s, users.size());
+            groupUserMap.put(group, users);
+            adminMap.put(group, users.get(0));
+            customGroupCount++;
+            return group;
+        }
     }
 
     public int createMessage(String content) {
@@ -68,9 +70,12 @@ public class WhatsappRepository {
         return messageId;
     }
 
-    public int sendMessage(Message message, User sender, Group group) {
-        if(!groupUserMap.containsKey(group)) throw new RuntimeException("Group does not exist");
+    public int sendMessage(Message message, User sender, Group group) throws Exception {
+        if(!groupUserMap.containsKey(group))
+            throw new Exception("Group does not exist");
+
         senderMap.put(message,sender);
+
         List<User> list = new ArrayList<>(groupUserMap.get(group));
         for(User user : list)
         {
@@ -90,15 +95,15 @@ public class WhatsappRepository {
                 return messages.size();
             }
         }
-        throw new RuntimeException("You are not allowed to send message");
+        throw new Exception("You are not allowed to send message");
     }
 
-    public String changeAdmin(User approver, User user, Group group) {
+    public String changeAdmin(User approver, User user, Group group) throws Exception {
 
-        if(!groupMessageMap.containsKey(group)) throw new RuntimeException("Group does not exist");
+        if(!groupUserMap.containsKey(group)) throw new Exception("Group does not exist");
 
         if(!adminMap.get(group).getMobile() .equals(approver.getMobile()))
-            throw new RuntimeException("Approver does not have rights");
+            throw new Exception("Approver does not have rights");
 
         List<User> list = new ArrayList<>(groupUserMap.get(group));
 
@@ -110,10 +115,10 @@ public class WhatsappRepository {
                 return "Success";
             }
         }
-        throw new RuntimeException("User is not a participant");
+        throw new Exception("User is not a participant");
     }
 
-    public int removeUser(User user) {
+    public int removeUser(User user) throws Exception {
 
         for(Group group : groupUserMap.keySet())
         {
@@ -124,7 +129,7 @@ public class WhatsappRepository {
                 if(user.getMobile().equals(u.getMobile())) {
 
                     if(adminMap.get(group).getName().equals(user.getMobile()))
-                        throw new RuntimeException("Cannot remove admin");
+                        throw new Exception("Cannot remove admin");
                     else {
                         List<Message> messages = new ArrayList<>(groupMessageMap.get(group));
                         for(Message message : messages)
@@ -145,7 +150,7 @@ public class WhatsappRepository {
 
             }
         }
-        throw  new RuntimeException("User not found");
+        throw  new Exception("User not found");
                            }
 
     public String findMessage(Date start, Date end, int k) {
